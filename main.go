@@ -2,7 +2,7 @@ package main
 
 import (
 	"time"
-	"pTools/nginx_log_analy/tools"
+	"github.com/Andrew512512/nginx_log_analy/tools"
 	"net"
 	"errors"
 	"fmt"
