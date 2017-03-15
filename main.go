@@ -11,7 +11,7 @@ import (
 var (
 	filePath string = "/usr/local/openresty/nginx/logs/access.log"
 	endPoint string
-	prefix string = "test_v5_"
+	prefix string = "test_v6"
 )
 
 func main() {

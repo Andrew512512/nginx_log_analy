@@ -20,3 +20,12 @@ func TestAnalyLineWithoutRealIP(t *testing.T) {
 	}
 	fmt.Println(*r)
 }
+
+func Test2(t *testing.T) {
+	r, err := analyANginxLine(`117.136.50.214 - - [15/Mar/2017:11:12:27 +0800] "GET /api/v1/category/categoryReadingMaterials/rmcbs/1459838108 HTTP/1.1" 200 10026 "-" "Dalvik/2.1.0 (Linux; U; Android 5.1; m2 note Build/LMY47D)" - "0.001"`)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(*r)
+	fmt.Println(getApiNameInfo(r.URL))
+}

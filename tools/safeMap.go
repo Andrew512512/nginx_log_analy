@@ -91,6 +91,7 @@ func (m *SafeMap) InitWithFile(file_path string) error {
 	if err != nil {
 		return err
 	}
+	content = strings.Replace(content, "\n", "", -1)
 	api_num := 0
 	for _, single_api := range (strings.Split(content, ";")) {
 		if len(single_api) > 1 {
