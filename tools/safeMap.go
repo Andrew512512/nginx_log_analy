@@ -104,7 +104,8 @@ func (m *SafeMap) InitWithFile(file_path string) error {
 	api_num := 0
 	for _, single_api := range (strings.Split(content, ";")) {
 		if len(single_api) > 0 {
-			m.bm[single_api] = newNginxStatistics(single_api, 0, 0)
+			//修正最后一位带着的\n
+			m.bm[single_api] = newNginxStatistics(strings.Replace(single_api, "\n", "", -1), 0, 0)
 			api_num += 1
 		}
 	}
