@@ -3,14 +3,21 @@ package tools
 import (
 	"sync"
 	"xsbPro/log"
+	"strings"
 )
 
 var (
-	Cache *SafeMap
+	api_file string = "./api.list"
+	Cache    *SafeMap
 )
 
 func InitCache() {
+	var err error
 	Cache = NewSafeMap()
+	err = Cache.InitWithFile(api_file)
+	if err != nil {
+		panic(err)
+	}
 }
 
 type NginxStatistics struct {
@@ -47,6 +54,11 @@ func (m *SafeMap) AddOneSuccess(URL string) {
 	defer m.lock.Unlock()
 	if value, ok := m.bm[URL]; !ok {
 		m.bm[URL] = newNginxStatistics(URL, 1, 0)
+		content := ""
+		for key, _ := range (m.bm) {
+			content = content + ";" + key
+		}
+		writeLineToFile(api_file, content)
 	} else {
 		value.Success += 1
 	}
@@ -58,6 +70,11 @@ func (m *SafeMap) AddOneFail(URL string) {
 	defer m.lock.Unlock()
 	if value, ok := m.bm[URL]; !ok {
 		m.bm[URL] = newNginxStatistics(URL, 0, 1)
+		content := ""
+		for key, _ := range (m.bm) {
+			content = content + ";" + key
+		}
+		writeLineToFile(api_file, content)
 	} else {
 		value.Fail += 1
 	}
@@ -76,6 +93,26 @@ func (m *SafeMap) Reset() {
 	}
 }
 
+//利用文件内容初始化
+func (m *SafeMap) InitWithFile(file_path string) error {
+	m.lock.Lock()
+	defer m.lock.Unlock()
+	content, err := getLinesBehindLine(file_path, 1)
+	if err != nil {
+		return err
+	}
+	api_num := 0
+	for _, single_api := range (strings.Split(content, ";")) {
+		if len(single_api) > 0 {
+			m.bm[single_api] = newNginxStatistics(single_api, 0, 0)
+			api_num += 1
+		}
+	}
+	log.InfoF("共计读取到历史api个数(%d)个", api_num)
+	return nil
+}
+
+
 // Items returns all items in safemap.
 func (m *SafeMap) Items() map[string]*NginxStatistics {
 	m.lock.RLock()
@@ -86,8 +123,6 @@ func (m *SafeMap) Items() map[string]*NginxStatistics {
 	}
 	return r
 }
-
-
 
 func SaveResultsToCache(infos []*NginxLogInfo) {
 	for _, info := range (infos) {
