@@ -37,7 +37,7 @@ func new_FalconMessage(endpoint, metric string, timestamp, step, value int) *Fal
 
 func UploadOnce(endPoint, prefix string) {
 	now := time.Now()
-	fmt.Println("\n*********** Start upload msg... (" + now.Format(time.RFC3339) + "): *************")
+	fmt.Println("\n-------------------- Start upload msg... (" + now.Format(time.RFC3339) + "): --------------------")
 	timestamp := int(now.Unix())
 	messages := []*FalconMessage{}
 	for _, info := range (Cache.Items()) {
@@ -71,5 +71,5 @@ func UploadOnce(endPoint, prefix string) {
 		spew.Dump(resp)
 	}
 
-	fmt.Println("******************************************************************")
+	fmt.Println("--------------------------------------------------------------------------------")
 }
