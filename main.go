@@ -27,6 +27,7 @@ func main() {
 
 	go fileTimer()
 	go uploadTimer()
+	go saveApiHistoryTimer()
 
 	//酱油主线程
 	for true {
@@ -52,6 +53,18 @@ func uploadTimer() {
 		for {
 			<-ticker.C
 			tools.UploadOnce(endPoint, prefix)
+		}
+	}()
+}
+
+
+//上传定时器
+func saveApiHistoryTimer() {
+	ticker := time.NewTicker(60 * time.Second)
+	go func() {
+		for {
+			<-ticker.C
+			tools.SaveApiHistory()
 		}
 	}()
 }

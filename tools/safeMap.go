@@ -54,11 +54,6 @@ func (m *SafeMap) AddOneSuccess(URL string) {
 	defer m.lock.Unlock()
 	if value, ok := m.bm[URL]; !ok {
 		m.bm[URL] = newNginxStatistics(URL, 1, 0)
-		content := ""
-		for key, _ := range (m.bm) {
-			content = content + ";" + key
-		}
-		writeLineToFile(api_file, content)
 	} else {
 		value.Success += 1
 	}
@@ -70,11 +65,6 @@ func (m *SafeMap) AddOneFail(URL string) {
 	defer m.lock.Unlock()
 	if value, ok := m.bm[URL]; !ok {
 		m.bm[URL] = newNginxStatistics(URL, 0, 1)
-		content := ""
-		for key, _ := range (m.bm) {
-			content = content + ";" + key
-		}
-		writeLineToFile(api_file, content)
 	} else {
 		value.Fail += 1
 	}
@@ -103,9 +93,8 @@ func (m *SafeMap) InitWithFile(file_path string) error {
 	}
 	api_num := 0
 	for _, single_api := range (strings.Split(content, ";")) {
-		if len(single_api) > 0 {
-			//修正最后一位带着的\n
-			m.bm[single_api] = newNginxStatistics(strings.Replace(single_api, "\n", "", -1), 0, 0)
+		if len(single_api) > 1 {
+			m.bm[single_api] = newNginxStatistics(single_api, 0, 0)
 			api_num += 1
 		}
 	}
@@ -137,4 +126,12 @@ func SaveResultsToCache(infos []*NginxLogInfo) {
 			Cache.AddOneFail(info.URL)
 		}
 	}
+}
+
+func SaveApiHistory() {
+	content := ""
+	for _, item := range (Cache.Items()) {
+		content = content + ";" + item.URL
+	}
+	writeLineToFile(api_file, content)
 }
