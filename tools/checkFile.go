@@ -92,6 +92,6 @@ func getLinesBeforeLine(file string, line int64) (string, error) {
 
 //向文件中写单行文本
 func writeLineToFile(file string, line string) (error) {
-	_, err := exec.Command("/bin/sh", "-c", fmt.Sprintf("echo %s > %s", line, file)).Output()
+	_, err := exec.Command("/bin/sh", "-c", fmt.Sprintf("echo '%s' > %s", line, file)).Output()
 	return err
 }
