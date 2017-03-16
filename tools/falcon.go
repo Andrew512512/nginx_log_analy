@@ -44,6 +44,7 @@ func UploadOnce(endPoint, prefix string) {
 		log.InfoF("%v", *info)
 		messages = append(messages, new_FalconMessage(endPoint, prefix + "_allMsg_" + info.URL, timestamp, 60, info.Success + info.Fail))
 		messages = append(messages, new_FalconMessage(endPoint, prefix + "_failMsg_" + info.URL, timestamp, 60, info.Fail))
+		messages = append(messages, new_FalconMessage(endPoint, prefix + "_delayMsg_" + info.URL, timestamp, 60, info.Delay))
 	}
 
 	//清零缓存

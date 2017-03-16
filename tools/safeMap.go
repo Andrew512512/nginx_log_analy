@@ -24,13 +24,15 @@ type NginxStatistics struct {
 	URL     string
 	Success int
 	Fail    int
+	Delay   int
 }
 
-func newNginxStatistics(URL string, success, fail int) *NginxStatistics {
+func newNginxStatistics(URL string, success, fail, delay int) *NginxStatistics {
 	return &NginxStatistics{
 		URL:     URL,
 		Success: success,
 		Fail:    fail,
+		Delay:   delay,
 	}
 }
 
@@ -48,27 +50,17 @@ func NewSafeMap() *SafeMap {
 }
 
 
-//增加一个成功访问计数
-func (m *SafeMap) AddOneSuccess(URL string) {
+//增加一个计数
+func (m *SafeMap) AddCounter(URL string, success, fail, delay int) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 	if value, ok := m.bm[URL]; !ok {
-		m.bm[URL] = newNginxStatistics(URL, 1, 0)
+		m.bm[URL] = newNginxStatistics(URL, success, fail, delay)
 	} else {
 		value.Success += 1
 	}
 }
 
-//增加一个失败访问计数
-func (m *SafeMap) AddOneFail(URL string) {
-	m.lock.Lock()
-	defer m.lock.Unlock()
-	if value, ok := m.bm[URL]; !ok {
-		m.bm[URL] = newNginxStatistics(URL, 0, 1)
-	} else {
-		value.Fail += 1
-	}
-}
 
 //清零所有api计数
 func (m *SafeMap) Reset() {
@@ -79,6 +71,7 @@ func (m *SafeMap) Reset() {
 			URL:     v.URL,
 			Success: 0,
 			Fail:    0,
+			Delay:   0,
 		}
 	}
 }
@@ -95,7 +88,7 @@ func (m *SafeMap) InitWithFile(file_path string) error {
 	api_num := 0
 	for _, single_api := range (strings.Split(content, ";")) {
 		if len(single_api) > 1 {
-			m.bm[single_api] = newNginxStatistics(single_api, 0, 0)
+			m.bm[single_api] = newNginxStatistics(single_api, 0, 0, 0)
 			api_num += 1
 		}
 	}
@@ -121,11 +114,19 @@ func SaveResultsToCache(infos []*NginxLogInfo) {
 			log.SysF("结构含有不正确的URL信息: %v", *info)
 			continue
 		}
+		success := 0
+		fail := 0
+		delay := 0
 		if info.Code == "200" || info.Code == "301" || info.Code == "302" || info.Code == "303" || info.Code == "304" {
-			Cache.AddOneSuccess(info.URL)
+			success = 1
 		} else {
-			Cache.AddOneFail(info.URL)
+			fail = 1
 		}
+		//大于300ms的访问
+		if info.ReqTime >= "0.300" {
+			delay = 1
+		}
+		Cache.AddCounter(info.URL, success, fail, delay)
 	}
 }
 
