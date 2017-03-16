@@ -29,3 +29,14 @@ func Test2(t *testing.T) {
 	fmt.Println(*r)
 	fmt.Println(getApiNameInfo(r.URL))
 }
+
+func TestAnalyLine3(t *testing.T) {
+	r, err := analyANginxLine(`117.136.86.175 - - [16/Mar/2017:10:56:28 +0800] "POST /api/v1/user/active HTTP/1.1" 200 549 "-" "Dalvik/2.1.0 (Linux; U; Android 6.0.1; KIW-AL10 Build/HONORKIW-AL10)" - "0.308"`)
+	if err != nil {
+		fmt.Println(err)
+	}
+	if r.ReqTime > "0.001" {
+		fmt.Println(r.ReqTime, ">0.001")
+	}
+	fmt.Println(*r)
+}

@@ -57,7 +57,9 @@ func (m *SafeMap) AddCounter(URL string, success, fail, delay int) {
 	if value, ok := m.bm[URL]; !ok {
 		m.bm[URL] = newNginxStatistics(URL, success, fail, delay)
 	} else {
-		value.Success += 1
+		value.Success += success
+		value.Fail += fail
+		value.Delay += delay
 	}
 }
 
